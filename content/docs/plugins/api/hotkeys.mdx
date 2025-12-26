@@ -1,0 +1,165 @@
+---
+title: Hotkeys API
+description: Register keyboard shortcuts for your plugin
+
+---
+
+# Hotkeys API
+
+The Hotkeys API (`app.hotkeys`) allows you to register global keyboard shortcuts.
+
+## Registering Hotkeys
+
+```typescript
+this.app.hotkeys.register({
+  id: "my-plugin:search",
+  keys: "Mod+Shift+F",
+  callback: () => {
+    this.openSearch();
+  },
+});
+```
+
+## Hotkey Options
+
+| Property   | Type         | Required | Description                             |
+| ---------- | ------------ | -------- | --------------------------------------- |
+| `id`       | `string`     | Yes      | Unique identifier for the hotkey        |
+| `keys`     | `string`     | Yes      | Key combination (e.g., `'Mod+Shift+F'`) |
+| `callback` | `() => void` | Yes      | Function to execute                     |
+| `when`     | `string`     | No       | Context when hotkey is active           |
+
+## Key Format
+
+Use `+` to combine keys. Available modifiers:
+
+| Key     | Description                                         |
+| ------- | --------------------------------------------------- |
+| `Mod`   | Platform-aware: `Cmd` (macOS) or `Ctrl` (Win/Linux) |
+| `Ctrl`  | Control key                                         |
+| `Shift` | Shift key                                           |
+| `Alt`   | Alt/Option key                                      |
+| `Meta`  | Windows/Command key                                 |
+
+### Examples of Key Combinations
+
+```typescript
+// Single modifier + key
+"Mod+S"; // Cmd+S (Mac) or Ctrl+S (Win/Linux)
+"Ctrl+Enter"; // Ctrl+Enter
+
+// Multiple modifiers
+"Mod+Shift+P"; // Cmd+Shift+P or Ctrl+Shift+P
+"Ctrl+Alt+T"; // Ctrl+Alt+T
+
+// Function keys
+"F1"; // F1
+"Mod+F5"; // Cmd+F5 or Ctrl+F5
+
+// Special keys
+"Escape"; // Escape key
+"Mod+["; // Cmd+[ or Ctrl+[
+```
+
+## Conditional Hotkeys
+
+Use the `when` property to limit when a hotkey is active:
+
+```typescript
+this.app.hotkeys.register({
+  id: "my-plugin:format",
+  keys: "Alt+Shift+F",
+  when: "editorFocus", // Only when editor is focused
+  callback: () => {
+    this.formatDocument();
+  },
+});
+```
+
+### Available Contexts
+
+| Context        | Description               |
+| -------------- | ------------------------- |
+| `editorFocus`  | When editor has focus     |
+| `sidebarFocus` | When sidebar has focus    |
+| `modalOpen`    | When a modal is open      |
+| `inputFocus`   | When any input is focused |
+
+## Unregistering Hotkeys
+
+Hotkeys are automatically cleaned up when your plugin is disabled, but you can manually unregister:
+
+```typescript
+// Store the registration
+this.hotkeyRef = this.app.hotkeys.register({
+  id: "my-plugin:action",
+  keys: "Mod+K",
+  callback: () => {},
+});
+
+// Later, unregister
+this.app.hotkeys.unregister(this.hotkeyRef);
+```
+
+## Best Practices
+
+<Callout type="tip">
+  Use `Mod` instead of `Ctrl` or `Cmd` for cross-platform compatibility.
+</Callout>
+
+- **Avoid common shortcuts**: Don't override `Mod+C`, `Mod+V`, `Mod+Z`, etc.
+- **Use prefixes**: Consider shortcuts like `Mod+K Mod+S` for multi-step shortcuts
+- **Document your shortcuts**: List all shortcuts in your plugin's settings
+
+## Examples
+
+### Quick Search
+
+```typescript
+this.app.hotkeys.register({
+  id: "my-plugin:quick-search",
+  keys: "Mod+Shift+O",
+  callback: async () => {
+    const query = await this.app.modals.prompt({
+      title: "Quick Search",
+      placeholder: "Enter search term...",
+    });
+    if (query) {
+      await this.search(query);
+    }
+  },
+});
+```
+
+### Toggle Feature
+
+```typescript
+this.app.hotkeys.register({
+  id: "my-plugin:toggle-panel",
+  keys: "Mod+\\",
+  callback: () => {
+    this.isPanelOpen = !this.isPanelOpen;
+    this.updatePanelVisibility();
+  },
+});
+```
+
+### Editor Formatting
+
+```typescript
+// Bold
+this.app.hotkeys.register({
+  id: "my-plugin:bold",
+  keys: "Mod+B",
+  when: "editorFocus",
+  callback: () => this.app.editor.toggleBold(),
+});
+
+// Italic
+this.app.hotkeys.register({
+  id: "my-plugin:italic",
+  keys: "Mod+I",
+  when: "editorFocus",
+  callback: () => this.app.editor.toggleItalic(),
+});
+```

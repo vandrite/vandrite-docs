@@ -1,0 +1,14 @@
+{
+  "title": "Plugin Development",
+  "pages": [
+    "getting-started",
+    "manifest",
+    "examples",
+    "---API Reference---",
+    "api",
+    "---Configuration---",
+    "settings",
+    "---Distribution---",
+    "publishing"
+  ]
+}

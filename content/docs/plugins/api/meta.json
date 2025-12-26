@@ -1,0 +1,13 @@
+{
+  "title": "API Reference",
+  "icon": "Code",
+  "pages": [
+    "commands",
+    "events",
+    "vault",
+    "modals",
+    "hotkeys",
+    "editor",
+    "theme"
+  ]
+}

@@ -1,0 +1,124 @@
+---
+title: Example Plugins
+description: Learn from real-world Vandrite plugin examples
+---
+
+# Example Plugins
+
+The best way to learn plugin development is by studying real-world examples. Here are some official plugins you can reference.
+
+## Quick Note
+
+A simple yet practical plugin that demonstrates core plugin features.
+
+**Repository:** [vandrite/vandrite-plugin-quick-note](https://github.com/vandrite/vandrite-plugin-quick-note)
+
+### Features
+
+- **Daily Notes** - Create a daily note with `Mod+Shift+D`
+- **Quick Notes** - Create a quick note with a title using `Mod+Shift+N`
+- **Timestamps** - Insert the current time at cursor with `Mod+Shift+T`
+
+### What You'll Learn
+
+- Registering commands with keyboard shortcuts
+- Creating files using `app.vault`
+- Using date formatting for file names
+- Inserting text at cursor position with `app.editor`
+
+### Code Structure
+
+```
+quick-note/
+├── src/
+│   └── main.ts       # Main plugin logic
+├── manifest.json     # Plugin metadata
+├── package.json
+└── tsconfig.json
+```
+
+### Key Code Examples
+
+**Daily Note Command:**
+
+```typescript
+this.addCommand({
+  id: "quick-note:daily",
+  name: "Create Daily Note",
+  hotkeys: [{ modifiers: ["Mod", "Shift"], key: "d" }],
+  callback: async () => {
+    const date = new Date().toISOString().split("T")[0];
+    const path = `Journal/${date}.md`;
+
+    if (!(await this.app.vault.exists(path))) {
+      await this.app.vault.create(path, `# ${date}\n\n`);
+    }
+
+    // Open the file
+    await this.app.workspace.openFile(path);
+  },
+});
+```
+
+**Insert Timestamp:**
+
+```typescript
+this.addCommand({
+  id: "quick-note:timestamp",
+  name: "Insert Timestamp",
+  hotkeys: [{ modifiers: ["Mod", "Shift"], key: "t" }],
+  callback: () => {
+    const timestamp = new Date().toLocaleTimeString();
+    this.app.editor.insertText(timestamp);
+  },
+});
+```
+
+---
+
+## Building from Examples
+
+When studying example plugins:
+
+1. **Clone the repository** and explore the code structure
+2. **Read the manifest.json** to understand metadata requirements
+3. **Trace the onload() method** to see how features are registered
+4. **Run the build** and test locally before making changes
+
+## Development Workflow
+
+Most plugins follow this workflow:
+
+```bash
+# Clone the example
+git clone https://github.com/vandrite/vandrite-plugin-quick-note
+cd vandrite-plugin-quick-note
+
+# Install dependencies
+npm install
+
+# Build the plugin
+npm run build
+
+# Create a release
+npm run release
+```
+
+## More Examples
+
+Check the [Vandrite Plugins Registry](https://github.com/vandrite/vandrite-plugins) for more community plugins you can learn from.
+
+<Cards>
+  <Card
+    title="Quick Note Source"
+    href="https://github.com/vandrite/vandrite-plugin-quick-note"
+  />
+  <Card
+    title="Plugin Registry"
+    href="https://github.com/vandrite/vandrite-plugins"
+  />
+  <Card
+    title="Plugin API"
+    href="https://github.com/vandrite/vandrite-plugin-api"
+  />
+</Cards>

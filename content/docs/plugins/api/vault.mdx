@@ -1,0 +1,175 @@
+---
+title: Vault API
+description: Access and manipulate files in the user's vault
+---
+
+# Vault API
+
+The Vault API (`app.vault`) provides access to files in the user's vault, allowing you to read, create, modify, and delete files.
+
+## Reading Files
+
+```typescript
+// Read file content
+const content = await this.app.vault.read("path/to/file.md");
+console.log(content);
+```
+
+## Creating Files
+
+```typescript
+// Create a new file
+await this.app.vault.create("new-file.md", "Hello World");
+
+// Create in a subfolder (folder created automatically)
+await this.app.vault.create("notes/2026/january.md", "# January Notes");
+```
+
+## Modifying Files
+
+```typescript
+// Overwrite file content
+await this.app.vault.modify("path/to/file.md", "New content");
+
+// Append to file
+const existing = await this.app.vault.read("path/to/file.md");
+await this.app.vault.modify("path/to/file.md", existing + "\n\nAppended text");
+```
+
+## Deleting Files
+
+```typescript
+// Delete a file
+await this.app.vault.delete("path/to/file.md");
+```
+
+<Callout type="warning">
+  Deleted files are moved to the system trash. Use with caution.
+</Callout>
+
+## Listing Files
+
+```typescript
+// Get all files
+const files = await this.app.vault.getFiles();
+console.log(files); // [{ path: '...', name: '...' }, ...]
+
+// Get files in a specific folder
+const notes = await this.app.vault.getFiles("notes/");
+
+// Get markdown files only
+const mdFiles = files.filter((f) => f.path.endsWith(".md"));
+```
+
+## File Information
+
+```typescript
+// Check if file exists
+const exists = await this.app.vault.exists("path/to/file.md");
+
+// Get file metadata
+const metadata = await this.app.vault.getMetadata("path/to/file.md");
+console.log(metadata);
+// {
+//   path: 'path/to/file.md',
+//   name: 'file.md',
+//   size: 1234,
+//   created: Date,
+//   modified: Date
+// }
+```
+
+## Renaming / Moving Files
+
+```typescript
+// Rename a file
+await this.app.vault.rename("old-name.md", "new-name.md");
+
+// Move to a different folder
+await this.app.vault.rename("file.md", "archive/file.md");
+```
+
+## Working with Folders
+
+```typescript
+// Create a folder
+await this.app.vault.createFolder("new-folder");
+
+// List folders
+const folders = await this.app.vault.getFolders();
+
+// Delete empty folder
+await this.app.vault.deleteFolder("empty-folder");
+```
+
+## API Reference
+
+| Method                     | Parameters       | Returns             | Description          |
+| -------------------------- | ---------------- | ------------------- | -------------------- |
+| `read(path)`               | `string`         | `Promise<string>`   | Read file content    |
+| `create(path, content)`    | `string, string` | `Promise<void>`     | Create new file      |
+| `modify(path, content)`    | `string, string` | `Promise<void>`     | Modify existing file |
+| `delete(path)`             | `string`         | `Promise<void>`     | Delete file          |
+| `rename(oldPath, newPath)` | `string, string` | `Promise<void>`     | Rename/move file     |
+| `exists(path)`             | `string`         | `Promise<boolean>`  | Check if file exists |
+| `getFiles(folder?)`        | `string?`        | `Promise<File[]>`   | List files           |
+| `getFolders()`             | -                | `Promise<Folder[]>` | List folders         |
+| `getMetadata(path)`        | `string`         | `Promise<Metadata>` | Get file metadata    |
+| `createFolder(path)`       | `string`         | `Promise<void>`     | Create folder        |
+| `deleteFolder(path)`       | `string`         | `Promise<void>`     | Delete empty folder  |
+
+## Examples
+
+### Daily Note Plugin
+
+```typescript
+async createDailyNote() {
+  const date = new Date().toISOString().split('T')[0];
+  const path = `daily/${date}.md`;
+
+  if (await this.app.vault.exists(path)) {
+    this.app.events.trigger('notice', 'Daily note already exists');
+    return;
+  }
+
+  const template = `# ${date}\n\n## Today's Goals\n\n- [ ] \n\n## Notes\n\n`;
+  await this.app.vault.create(path, template);
+  this.app.events.trigger('notice', 'Daily note created!');
+}
+```
+
+### File Search
+
+```typescript
+async searchFiles(query: string) {
+  const files = await this.app.vault.getFiles();
+  const results = [];
+
+  for (const file of files) {
+    if (file.path.endsWith('.md')) {
+      const content = await this.app.vault.read(file.path);
+      if (content.toLowerCase().includes(query.toLowerCase())) {
+        results.push(file);
+      }
+    }
+  }
+
+  return results;
+}
+```
+
+### Backup Plugin
+
+```typescript
+async backupVault() {
+  const files = await this.app.vault.getFiles();
+  const backup: Record<string, string> = {};
+
+  for (const file of files) {
+    backup[file.path] = await this.app.vault.read(file.path);
+  }
+
+  const backupPath = `backups/${Date.now()}.json`;
+  await this.app.vault.create(backupPath, JSON.stringify(backup, null, 2));
+}
+```

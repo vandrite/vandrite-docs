@@ -1,0 +1,198 @@
+---
+title: Theme API
+description: Access and modify the application theme
+
+---
+
+# Theme API
+
+The Theme API (`app.theme`) allows you to access the current theme settings and modify the appearance.
+
+## Getting the Current Theme
+
+```typescript
+const theme = this.app.theme.getTheme();
+console.log(theme); // 'light', 'dark', or custom theme name
+```
+
+## Setting the Theme
+
+```typescript
+// Switch to dark mode
+this.app.theme.setTheme("dark");
+
+// Switch to light mode
+this.app.theme.setTheme("light");
+
+// Use system preference
+this.app.theme.setTheme("system");
+```
+
+## Checking Theme Mode
+
+```typescript
+// Check if dark mode is active
+const isDark = this.app.theme.isDarkMode();
+
+// Check if using system theme
+const isSystem = this.app.theme.isSystemTheme();
+```
+
+## Listening for Theme Changes
+
+```typescript
+this.registerEvent(
+  this.app.events.on("theme-change", ({ theme }) => {
+    console.log("Theme changed to:", theme);
+    this.updatePluginStyles(theme);
+  })
+);
+```
+
+## Getting Theme Colors
+
+Access the current color palette:
+
+```typescript
+const colors = this.app.theme.getColors();
+console.log(colors);
+// {
+//   background: '#1a1a2e',
+//   foreground: '#ffffff',
+//   primary: '#6822bd',
+//   secondary: '#915ad5',
+//   accent: '#b37eed',
+//   muted: '#64748b',
+//   border: '#334155',
+//   ...
+// }
+```
+
+## Theme Variables
+
+You can use CSS variables in your plugin styles that automatically update with the theme:
+
+```css
+.my-plugin-element {
+  background: var(--color-bg-main);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.my-plugin-accent {
+  color: var(--color-primary);
+}
+```
+
+### Available CSS Variables
+
+| Variable                 | Description           |
+| ------------------------ | --------------------- |
+| `--color-bg-main`        | Main background color |
+| `--color-bg-secondary`   | Secondary background  |
+| `--color-bg-tertiary`    | Tertiary background   |
+| `--color-text-primary`   | Primary text color    |
+| `--color-text-secondary` | Secondary text color  |
+| `--color-text-muted`     | Muted text color      |
+| `--color-primary`        | Primary accent color  |
+| `--color-border`         | Border color          |
+| `--color-hover`          | Hover state color     |
+
+## API Reference
+
+| Method                 | Parameters | Returns       | Description            |
+| ---------------------- | ---------- | ------------- | ---------------------- |
+| `getTheme()`           | -          | `string`      | Get current theme name |
+| `setTheme(name)`       | `string`   | `void`        | Set active theme       |
+| `isDarkMode()`         | -          | `boolean`     | Check if dark mode     |
+| `isSystemTheme()`      | -          | `boolean`     | Check if using system  |
+| `getColors()`          | -          | `ThemeColors` | Get color palette      |
+| `getAvailableThemes()` | -          | `string[]`    | List available themes  |
+
+## Examples
+
+### Theme Toggle Command
+
+```typescript
+this.addCommand({
+  id: "my-plugin:toggle-theme",
+  name: "Toggle Dark/Light Mode",
+  hotkeys: [{ modifiers: ["Mod", "Shift"], key: "L" }],
+  callback: () => {
+    const isDark = this.app.theme.isDarkMode();
+    this.app.theme.setTheme(isDark ? "light" : "dark");
+  },
+});
+```
+
+### Adaptive Plugin Styles
+
+```typescript
+async onload() {
+  this.updateStyles();
+
+  this.registerEvent(
+    this.app.events.on('theme-change', () => {
+      this.updateStyles();
+    })
+  );
+}
+
+updateStyles() {
+  const isDark = this.app.theme.isDarkMode();
+  const colors = this.app.theme.getColors();
+
+  this.containerEl.style.setProperty(
+    '--my-plugin-bg',
+    isDark ? colors.background : colors.foreground
+  );
+}
+```
+
+### Theme Selector
+
+```typescript
+async showThemeSelector() {
+  const themes = this.app.theme.getAvailableThemes();
+  const current = this.app.theme.getTheme();
+
+  const selected = await this.app.modals.select({
+    title: 'Select Theme',
+    options: themes.map(t => ({
+      value: t,
+      label: t.charAt(0).toUpperCase() + t.slice(1),
+    })),
+    defaultValue: current,
+  });
+
+  if (selected) {
+    this.app.theme.setTheme(selected);
+  }
+}
+```
+
+### CSS-in-JS with Theme Colors
+
+```typescript
+generateStyles() {
+  const colors = this.app.theme.getColors();
+
+  return `
+    .my-plugin-panel {
+      background: ${colors.background};
+      border: 1px solid ${colors.border};
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .my-plugin-title {
+      color: ${colors.primary};
+      font-weight: 600;
+    }
+
+    .my-plugin-text {
+      color: ${colors.foreground};
+    }
+  `;
+}
+```

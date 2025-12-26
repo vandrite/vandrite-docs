@@ -1,0 +1,112 @@
+---
+title: Plugin Development
+description: Build custom plugins to extend Vandrite's functionality
+---
+
+# Plugin Development
+
+Welcome to the Vandrite Plugin Development Guide! This section covers everything you need to know to build powerful plugins for Vandrite.
+
+## Overview
+
+Vandrite plugins are TypeScript/JavaScript modules that extend the app's functionality. With the Plugin API, you can:
+
+- Add custom commands to the command palette
+- Listen to and respond to events
+- Interact with files in the vault
+- Create custom UI modals
+- Register keyboard shortcuts
+- Manipulate the editor content
+- Access theme settings
+
+## Quick Start
+
+Get started building your first plugin in just a few steps:
+
+<Cards>
+  <Card
+    title="Getting Started"
+    href="/docs/plugins/getting-started"
+    description="Create your first plugin from scratch"
+  />
+  <Card
+    title="Plugin Manifest"
+    href="/docs/plugins/manifest"
+    description="Configure your plugin's metadata"
+  />
+  <Card
+    title="API Reference"
+    href="/docs/plugins/api"
+    description="Explore all available APIs"
+  />
+  <Card
+    title="Plugin Settings"
+    href="/docs/plugins/settings"
+    description="Add configurable settings to your plugin"
+  />
+</Cards>
+
+## Installation
+
+```bash
+npm install @vandrite/plugin-api
+```
+
+## Basic Example
+
+```typescript
+import { Plugin } from "@vandrite/plugin-api";
+
+export default class MyPlugin extends Plugin {
+  async onload() {
+    console.log("Plugin loaded!");
+
+    this.addCommand({
+      id: "my-command",
+      name: "Say Hello",
+      callback: () => {
+        this.app.events.trigger("notice", "Hello from my plugin!");
+      },
+    });
+  }
+
+  onunload() {
+    console.log("Plugin unloaded!");
+  }
+}
+```
+
+## API Categories
+
+| API                                        | Description                     |
+| ------------------------------------------ | ------------------------------- |
+| [app.commands](/docs/plugins/api/commands) | Register and execute commands   |
+| [app.events](/docs/plugins/api/events)     | Subscribe to application events |
+| [app.vault](/docs/plugins/api/vault)       | Access files in the vault       |
+| [app.modals](/docs/plugins/api/modals)     | Show dialogs and prompts        |
+| [app.hotkeys](/docs/plugins/api/hotkeys)   | Register keyboard shortcuts     |
+| [app.editor](/docs/plugins/api/editor)     | Interact with the text editor   |
+| [app.theme](/docs/plugins/api/theme)       | Access and modify themes        |
+
+## Resources
+
+<Cards>
+  <Card
+    title="Example Plugins"
+    href="/docs/plugins/examples"
+    description="Learn from real-world plugin examples"
+  />
+  <Card
+    title="Publishing Guide"
+    href="/docs/plugins/publishing"
+    description="Publish your plugin to the registry"
+  />
+  <Card
+    title="Plugin API"
+    href="https://github.com/vandrite/vandrite-plugin-api"
+  />
+  <Card
+    title="Plugin Registry"
+    href="https://github.com/vandrite/vandrite-plugins"
+  />
+</Cards>

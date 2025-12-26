@@ -1,0 +1,182 @@
+---
+title: Modals API
+description: Show dialogs, prompts, and confirmations
+
+---
+
+# Modals API
+
+The Modals API (`app.modals`) provides methods to display dialogs, prompts, and confirmations to the user.
+
+## Alert
+
+Display a simple message to the user:
+
+```typescript
+await this.app.modals.alert("Success!", "Your file has been saved.");
+```
+
+## Confirm
+
+Ask the user to confirm an action:
+
+```typescript
+const confirmed = await this.app.modals.confirm({
+  title: "Delete File?",
+  message: "This action cannot be undone.",
+  isDangerous: true,
+});
+
+if (confirmed) {
+  await this.app.vault.delete("file.md");
+}
+```
+
+### Confirm Options
+
+| Property      | Type      | Description                                          |
+| ------------- | --------- | ---------------------------------------------------- |
+| `title`       | `string`  | Dialog title                                         |
+| `message`     | `string`  | Dialog message                                       |
+| `isDangerous` | `boolean` | If true, confirm button is styled as dangerous (red) |
+| `confirmText` | `string`  | Custom confirm button text (default: "Confirm")      |
+| `cancelText`  | `string`  | Custom cancel button text (default: "Cancel")        |
+
+## Prompt
+
+Get text input from the user:
+
+```typescript
+const name = await this.app.modals.prompt({
+  title: "Enter Name",
+  placeholder: "Type your name here...",
+});
+
+if (name) {
+  console.log("User entered:", name);
+}
+```
+
+### Prompt Options
+
+| Property       | Type     | Description                 |
+| -------------- | -------- | --------------------------- |
+| `title`        | `string` | Dialog title                |
+| `placeholder`  | `string` | Input placeholder text      |
+| `defaultValue` | `string` | Pre-filled value            |
+| `description`  | `string` | Additional description text |
+
+## Select
+
+Let the user choose from a list of options:
+
+```typescript
+const choice = await this.app.modals.select({
+  title: "Choose Template",
+  options: [
+    { value: "blank", label: "Blank Note" },
+    { value: "daily", label: "Daily Note" },
+    { value: "meeting", label: "Meeting Notes" },
+    { value: "todo", label: "Todo List" },
+  ],
+});
+
+if (choice) {
+  console.log("Selected:", choice); // 'blank', 'daily', etc.
+}
+```
+
+### Select Options
+
+| Property       | Type                                 | Description                 |
+| -------------- | ------------------------------------ | --------------------------- |
+| `title`        | `string`                             | Dialog title                |
+| `options`      | `{ value: string, label: string }[]` | List of options             |
+| `defaultValue` | `string`                             | Pre-selected value          |
+| `description`  | `string`                             | Additional description text |
+
+## API Reference
+
+| Method                  | Returns                   | Description            |
+| ----------------------- | ------------------------- | ---------------------- |
+| `alert(title, message)` | `Promise<void>`           | Shows an alert dialog  |
+| `confirm(options)`      | `Promise<boolean>`        | Shows a confirm dialog |
+| `prompt(options)`       | `Promise<string \| null>` | Shows a prompt dialog  |
+| `select(options)`       | `Promise<string \| null>` | Shows a select dialog  |
+
+## Examples
+
+### File Deletion Confirmation
+
+```typescript
+async deleteFile(path: string) {
+  const confirmed = await this.app.modals.confirm({
+    title: 'Delete File',
+    message: `Are you sure you want to delete "${path}"?`,
+    isDangerous: true,
+    confirmText: 'Delete',
+  });
+
+  if (confirmed) {
+    await this.app.vault.delete(path);
+    this.app.events.trigger('notice', 'File deleted');
+  }
+}
+```
+
+### New Note with Template
+
+```typescript
+async createNote() {
+  // Get note name
+  const name = await this.app.modals.prompt({
+    title: 'New Note',
+    placeholder: 'Enter note name...',
+  });
+
+  if (!name) return;
+
+  // Choose template
+  const template = await this.app.modals.select({
+    title: 'Choose Template',
+    options: [
+      { value: 'blank', label: '📄 Blank Note' },
+      { value: 'daily', label: '📅 Daily Note' },
+      { value: 'meeting', label: '👥 Meeting Notes' },
+    ],
+  });
+
+  if (!template) return;
+
+  // Create note with template
+  const content = this.getTemplate(template);
+  await this.app.vault.create(`${name}.md`, content);
+}
+```
+
+### Settings Wizard
+
+```typescript
+async runSetupWizard() {
+  await this.app.modals.alert(
+    'Welcome!',
+    'Let\'s set up your plugin.'
+  );
+
+  const apiKey = await this.app.modals.prompt({
+    title: 'API Key',
+    placeholder: 'Enter your API key...',
+    description: 'You can find this in your account settings.',
+  });
+
+  if (!apiKey) {
+    await this.app.modals.alert('Setup Cancelled', 'You can run setup again from settings.');
+    return;
+  }
+
+  this.settings.apiKey = apiKey;
+  await this.saveSettings();
+
+  await this.app.modals.alert('Setup Complete!', 'Your plugin is ready to use.');
+}
+```

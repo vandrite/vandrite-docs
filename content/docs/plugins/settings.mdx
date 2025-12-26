@@ -1,0 +1,193 @@
+---
+title: Plugin Settings
+description: Add configurable settings to your Vandrite plugin
+
+---
+
+# Plugin Settings
+
+Allow users to customize your plugin's behavior by adding configurable settings.
+
+## Defining Settings
+
+Create a TypeScript interface for your settings and define defaults:
+
+```typescript
+interface MySettings {
+  showGreeting: boolean;
+  greetingText: string;
+  maxItems: number;
+}
+
+const DEFAULT_SETTINGS: MySettings = {
+  showGreeting: true,
+  greetingText: "Hello!",
+  maxItems: 10,
+};
+```
+
+## Loading and Saving Settings
+
+Use `loadData()` and `saveData()` to persist settings:
+
+```typescript
+import { Plugin } from "@vandrite/plugin-api";
+
+interface MySettings {
+  showGreeting: boolean;
+  greetingText: string;
+  maxItems: number;
+}
+
+const DEFAULT_SETTINGS: MySettings = {
+  showGreeting: true,
+  greetingText: "Hello!",
+  maxItems: 10,
+};
+
+export default class MyPlugin extends Plugin {
+  settings: MySettings;
+
+  async onload() {
+    // Load settings, merging with defaults
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+
+    // Add settings tab
+    this.addSettingTab(new MySettingTab(this.app, this));
+  }
+
+  async saveSettings() {
+    await this.saveData(this.settings);
+  }
+}
+```
+
+## Creating a Settings Tab
+
+Use `PluginSettingTab` to create a settings UI:
+
+```typescript
+import { PluginSettingTab, App } from "@vandrite/plugin-api";
+
+class MySettingTab extends PluginSettingTab {
+  plugin: MyPlugin;
+
+  constructor(app: App, plugin: MyPlugin) {
+    super(app, plugin);
+    this.plugin = plugin;
+  }
+
+  display(): void {
+    const container = this.containerEl;
+    container.empty();
+
+    // Title
+    container.createEl("h2", { text: "My Plugin Settings" });
+
+    // Toggle setting
+    this.addToggle(container, {
+      name: "Show Greeting",
+      description: "Display a greeting when opening a file",
+      value: this.plugin.settings.showGreeting,
+      onChange: async (value) => {
+        this.plugin.settings.showGreeting = value;
+        await this.plugin.saveSettings();
+      },
+    });
+
+    // Text setting
+    this.addText(container, {
+      name: "Greeting Text",
+      description: "The text to display in the greeting",
+      value: this.plugin.settings.greetingText,
+      placeholder: "Enter greeting...",
+      onChange: async (value) => {
+        this.plugin.settings.greetingText = value;
+        await this.plugin.saveSettings();
+      },
+    });
+
+    // Number setting
+    this.addSlider(container, {
+      name: "Max Items",
+      description: "Maximum number of items to display",
+      value: this.plugin.settings.maxItems,
+      min: 1,
+      max: 100,
+      step: 1,
+      onChange: async (value) => {
+        this.plugin.settings.maxItems = value;
+        await this.plugin.saveSettings();
+      },
+    });
+  }
+}
+```
+
+## Available Setting Types
+
+### Toggle
+
+```typescript
+this.addToggle(container, {
+  name: "Enable Feature",
+  description: "Turn this feature on or off",
+  value: boolean,
+  onChange: async (value: boolean) => {},
+});
+```
+
+### Text Input
+
+```typescript
+this.addText(container, {
+  name: "API Key",
+  description: "Your API key",
+  value: string,
+  placeholder: "Enter key...",
+  onChange: async (value: string) => {},
+});
+```
+
+### Slider
+
+```typescript
+this.addSlider(container, {
+  name: "Font Size",
+  description: "Editor font size in pixels",
+  value: number,
+  min: 8,
+  max: 32,
+  step: 1,
+  onChange: async (value: number) => {},
+});
+```
+
+### Dropdown
+
+```typescript
+this.addDropdown(container, {
+  name: "Theme",
+  description: "Select a theme",
+  value: "dark",
+  options: {
+    light: "Light",
+    dark: "Dark",
+    system: "System",
+  },
+  onChange: async (value: string) => {},
+});
+```
+
+## Best Practices
+
+<Callout type="tip">
+  **Debounce text inputs** - Don't save on every keystroke. Use a debounce or
+  save on blur.
+</Callout>
+
+- Always provide sensible defaults
+- Use descriptive names and descriptions
+- Group related settings together
+- Validate user input before saving
+- Consider using categories for many settings

@@ -1,0 +1,137 @@
+---
+title: Commands API
+description: Register and execute commands in Vandrite
+
+---
+
+# Commands API
+
+The Commands API (`app.commands`) allows you to register custom commands that appear in the command palette and can be triggered via hotkeys.
+
+## Adding a Command
+
+Use the `addCommand()` method in your plugin:
+
+```typescript
+this.addCommand({
+  id: "my-plugin:do-something",
+  name: "Do Something",
+  callback: () => {
+    console.log("Command executed!");
+  },
+});
+```
+
+## Command Options
+
+| Property        | Type            | Required | Description                                             |
+| --------------- | --------------- | -------- | ------------------------------------------------------- |
+| `id`            | `string`        | Yes      | Unique identifier (recommend: `plugin-id:command-name`) |
+| `name`          | `string`        | Yes      | Display name in command palette                         |
+| `callback`      | `() => void`    | Yes      | Function to execute when command is triggered           |
+| `hotkeys`       | `Hotkey[]`      | No       | Default keyboard shortcuts                              |
+| `icon`          | `string`        | No       | Icon name to display                                    |
+| `checkCallback` | `() => boolean` | No       | Return false to disable the command conditionally       |
+
+## Adding Hotkeys
+
+Assign default keyboard shortcuts to your commands:
+
+```typescript
+this.addCommand({
+  id: "my-plugin:do-something",
+  name: "Do Something",
+  hotkeys: [
+    {
+      modifiers: ["Mod"],
+      key: "p",
+    },
+  ],
+  callback: () => {
+    // ...
+  },
+});
+```
+
+<Callout type="info">
+  `Mod` is a cross-platform modifier that maps to `Cmd` on macOS and `Ctrl` on
+  Windows/Linux.
+</Callout>
+
+## Modifier Keys
+
+| Modifier | Description                             |
+| -------- | --------------------------------------- |
+| `Mod`    | `Cmd` (macOS) or `Ctrl` (Windows/Linux) |
+| `Ctrl`   | Control key                             |
+| `Shift`  | Shift key                               |
+| `Alt`    | Alt/Option key                          |
+| `Meta`   | Meta key (Windows key / Command key)    |
+
+## Conditional Commands
+
+Use `checkCallback` to conditionally enable/disable commands:
+
+```typescript
+this.addCommand({
+  id: "my-plugin:format-selection",
+  name: "Format Selection",
+  checkCallback: () => {
+    // Only enable when text is selected
+    return this.app.editor.hasSelection();
+  },
+  callback: () => {
+    const text = this.app.editor.getSelectedText();
+    // Format the text...
+  },
+});
+```
+
+## Examples
+
+### Basic Command
+
+```typescript
+this.addCommand({
+  id: "word-counter:count",
+  name: "Count Words",
+  callback: () => {
+    const count = this.app.editor.getWordCount();
+    this.app.modals.alert("Word Count", `This document has ${count} words.`);
+  },
+});
+```
+
+### Command with Multiple Hotkeys
+
+```typescript
+this.addCommand({
+  id: "quick-note:new",
+  name: "Create Quick Note",
+  hotkeys: [
+    { modifiers: ["Mod"], key: "n" },
+    { modifiers: ["Mod", "Shift"], key: "n" },
+  ],
+  callback: async () => {
+    const date = new Date().toISOString().split("T")[0];
+    await this.app.vault.create(`quick-notes/${date}.md`, "# Quick Note\n\n");
+  },
+});
+```
+
+### Command with Check Callback
+
+```typescript
+this.addCommand({
+  id: "my-plugin:toggle-bold",
+  name: "Toggle Bold",
+  hotkeys: [{ modifiers: ["Mod"], key: "b" }],
+  checkCallback: () => {
+    // Only show in editor mode
+    return this.app.editor.isActive();
+  },
+  callback: () => {
+    this.app.editor.toggleBold();
+  },
+});
+```

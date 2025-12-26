@@ -1,0 +1,175 @@
+---
+title: Getting Started
+description: Create your first Vandrite plugin from scratch
+
+---
+
+# Getting Started
+
+This guide will walk you through creating your first Vandrite plugin.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- [Node.js](https://nodejs.org/) (v22 or higher)
+- npm or yarn
+- Basic TypeScript/JavaScript knowledge
+
+## Installation
+
+Install the plugin API package:
+
+```bash
+npm install @vandrite/plugin-api
+```
+
+## Creating Your First Plugin
+
+### Step 1: Create Plugin Files
+
+Create a new folder for your plugin with the following structure:
+
+```
+my-plugin/
+├── manifest.json
+├── main.ts
+├── package.json
+└── tsconfig.json
+```
+
+### Step 2: Configure package.json
+
+```json title="package.json"
+{
+  "name": "my-vandrite-plugin",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@vandrite/plugin-api": "^1.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+```
+
+### Step 3: Configure TypeScript
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "lib": ["ES2020", "DOM"],
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": ["*.ts"]
+}
+```
+
+### Step 4: Create the Manifest
+
+```json title="manifest.json"
+{
+  "id": "my-plugin",
+  "name": "My First Plugin",
+  "version": "1.0.0",
+  "description": "A sample Vandrite plugin",
+  "author": "Your Name",
+  "minAppVersion": "0.1.0"
+}
+```
+
+<Callout type="info">
+  Learn more about manifest configuration in the [Plugin
+  Manifest](/docs/plugins/manifest) guide.
+</Callout>
+
+### Step 5: Write Your Plugin
+
+```typescript title="main.ts"
+import { Plugin, PluginManifest } from "@vandrite/plugin-api";
+
+export default class MyPlugin extends Plugin {
+  async onload() {
+    console.log("My plugin loaded!");
+
+    // Add a command to the command palette
+    this.addCommand({
+      id: "my-plugin:greet",
+      name: "Say Hello",
+      callback: () => {
+        this.app.events.trigger("notice", "Hello from My Plugin!");
+      },
+    });
+
+    // Listen to events
+    const ref = this.app.events.on("file-open", (file) => {
+      console.log("File opened:", file.path);
+    });
+    this.registerEvent(ref);
+  }
+
+  onunload() {
+    console.log("My plugin unloaded!");
+  }
+}
+```
+
+## Building Your Plugin
+
+Compile your TypeScript to JavaScript:
+
+```bash
+npm run build
+```
+
+This will create a `main.js` file in your `dist` folder.
+
+## Installing Your Plugin
+
+1. Copy your plugin folder (with `manifest.json` and `main.js`) to Vandrite's plugins directory
+2. Restart Vandrite
+3. Enable your plugin in Settings → Plugins
+
+## Distributing Your Plugin
+
+To distribute your plugin:
+
+1. Create a folder containing:
+
+   - `manifest.json`
+   - `main.js` (compiled)
+   - Any other assets your plugin needs
+
+2. ZIP the folder for distribution
+
+<Callout type="tip">
+  Consider publishing your plugin to npm for easy installation:
+  `@your-name/vandrite-plugin-name`
+</Callout>
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Plugin Manifest"
+    href="/docs/plugins/manifest"
+    description="Configure your plugin metadata"
+  />
+  <Card
+    title="API Reference"
+    href="/docs/plugins/api"
+    description="Explore all available APIs"
+  />
+  <Card
+    title="Plugin Settings"
+    href="/docs/plugins/settings"
+    description="Add configurable settings"
+  />
+</Cards>

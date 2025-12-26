@@ -1,0 +1,134 @@
+---
+title: Events API
+description: Subscribe to and emit application events
+
+---
+
+# Events API
+
+The Events API (`app.events`) allows you to listen for application events and trigger custom events.
+
+## Subscribing to Events
+
+Use `this.app.events.on()` to listen for events:
+
+```typescript
+const ref = this.app.events.on("file-open", (file) => {
+  console.log("File opened:", file.path);
+});
+
+// Important: Register the event to clean up on plugin unload
+this.registerEvent(ref);
+```
+
+<Callout type="warning">
+  Always use `this.registerEvent(ref)` to ensure event listeners are cleaned up
+  when your plugin is disabled.
+</Callout>
+
+## Available Events
+
+### File Events
+
+| Event         | Payload                                | Description            |
+| ------------- | -------------------------------------- | ---------------------- |
+| `file-open`   | `{ path: string, content: string }`    | A file was opened      |
+| `file-create` | `{ path: string }`                     | A new file was created |
+| `file-delete` | `{ path: string }`                     | A file was deleted     |
+| `file-rename` | `{ oldPath: string, newPath: string }` | A file was renamed     |
+| `file-modify` | `{ path: string, content: string }`    | A file was modified    |
+| `file-save`   | `{ path: string }`                     | A file was saved       |
+
+### Editor Events
+
+| Event              | Payload                                        | Description            |
+| ------------------ | ---------------------------------------------- | ---------------------- |
+| `editor-change`    | `{ content: string }`                          | Editor content changed |
+| `editor-selection` | `{ text: string, start: number, end: number }` | Selection changed      |
+| `editor-scroll`    | `{ position: number }`                         | Editor was scrolled    |
+
+### Application Events
+
+| Event           | Payload              | Description                  |
+| --------------- | -------------------- | ---------------------------- |
+| `app-ready`     | `null`               | Application finished loading |
+| `theme-change`  | `{ theme: string }`  | Theme was changed            |
+| `layout-change` | `{ layout: string }` | Layout was changed           |
+
+## Triggering Events
+
+Emit custom or built-in events:
+
+```typescript
+// Show a notification
+this.app.events.trigger("notice", "Hello from my plugin!");
+
+// Trigger with data
+this.app.events.trigger("custom-event", {
+  message: "Custom data",
+  timestamp: Date.now(),
+});
+```
+
+## Custom Events
+
+Define and listen for your own events:
+
+```typescript
+// In your plugin
+this.app.events.trigger("my-plugin:data-loaded", {
+  items: ["a", "b", "c"],
+});
+
+// Listen for custom events
+this.registerEvent(
+  this.app.events.on("my-plugin:data-loaded", (data) => {
+    console.log("Data loaded:", data.items);
+  })
+);
+```
+
+## Examples
+
+### Auto-save on File Change
+
+```typescript
+async onload() {
+  let lastSave = Date.now();
+
+  this.registerEvent(
+    this.app.events.on('editor-change', async ({ content }) => {
+      // Debounce: save at most every 5 seconds
+      if (Date.now() - lastSave > 5000) {
+        await this.app.vault.modify(currentFile, content);
+        lastSave = Date.now();
+        this.app.events.trigger('notice', 'Auto-saved');
+      }
+    })
+  );
+}
+```
+
+### React to Theme Changes
+
+```typescript
+this.registerEvent(
+  this.app.events.on("theme-change", ({ theme }) => {
+    if (theme === "dark") {
+      this.applyDarkStyles();
+    } else {
+      this.applyLightStyles();
+    }
+  })
+);
+```
+
+### Welcome Message on Startup
+
+```typescript
+this.registerEvent(
+  this.app.events.on("app-ready", () => {
+    this.app.events.trigger("notice", "Welcome back! 👋");
+  })
+);
+```

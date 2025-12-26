@@ -1,0 +1,5 @@
+{
+  "title": "User Guide",
+  "icon": "Book",
+  "pages": ["getting-started", "features", "settings"]
+}

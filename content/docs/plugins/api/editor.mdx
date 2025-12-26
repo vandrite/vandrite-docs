@@ -1,0 +1,194 @@
+---
+title: Editor API
+description: Interact with the text editor
+
+---
+
+# Editor API
+
+The Editor API (`app.editor`) provides methods to interact with the text editor, including inserting text, getting selections, and formatting content.
+
+## Inserting Text
+
+```typescript
+// Insert at cursor position
+this.app.editor.insertText("Hello World");
+
+// Insert at specific position
+this.app.editor.insertText("Hello", { line: 5, ch: 0 });
+```
+
+## Getting Content
+
+```typescript
+// Get all content
+const content = this.app.editor.getContent();
+
+// Get selected text
+const selection = this.app.editor.getSelectedText();
+
+// Check if there's a selection
+const hasSelection = this.app.editor.hasSelection();
+```
+
+## Selection
+
+```typescript
+// Get selection range
+const range = this.app.editor.getSelection();
+// { start: { line: 0, ch: 5 }, end: { line: 0, ch: 10 } }
+
+// Set selection
+this.app.editor.setSelection({ line: 0, ch: 0 }, { line: 0, ch: 10 });
+
+// Select all
+this.app.editor.selectAll();
+```
+
+## Formatting
+
+````typescript
+// Toggle formatting
+this.app.editor.toggleBold(); // **text**
+this.app.editor.toggleItalic(); // *text*
+this.app.editor.toggleCode(); // `text`
+this.app.editor.toggleStrikethrough(); // ~~text~~
+
+// Headings
+this.app.editor.setHeading(1); // # Heading
+this.app.editor.setHeading(2); // ## Heading
+this.app.editor.setHeading(3); // ### Heading
+
+// Lists
+this.app.editor.toggleBulletList(); // - item
+this.app.editor.toggleNumberedList(); // 1. item
+this.app.editor.toggleCheckbox(); // - [ ] item
+
+// Quotes and code blocks
+this.app.editor.toggleBlockquote(); // > quote
+this.app.editor.toggleCodeBlock(); // ```code```
+````
+
+## Cursor Position
+
+```typescript
+// Get cursor position
+const pos = this.app.editor.getCursor();
+// { line: 5, ch: 10 }
+
+// Set cursor position
+this.app.editor.setCursor({ line: 0, ch: 0 });
+
+// Scroll to line
+this.app.editor.scrollToLine(100);
+```
+
+## Statistics
+
+```typescript
+// Get document statistics
+const wordCount = this.app.editor.getWordCount();
+const charCount = this.app.editor.getCharacterCount();
+const lineCount = this.app.editor.getLineCount();
+```
+
+## Replace Content
+
+```typescript
+// Replace selection
+this.app.editor.replaceSelection("new text");
+
+// Replace range
+this.app.editor.replaceRange(
+  "replacement",
+  { line: 0, ch: 5 },
+  { line: 0, ch: 10 }
+);
+
+// Replace all content
+this.app.editor.setContent("# New Document\n\nContent here...");
+```
+
+## API Reference
+
+| Method                   | Parameters           | Returns    | Description               |
+| ------------------------ | -------------------- | ---------- | ------------------------- |
+| `getContent()`           | -                    | `string`   | Get all editor content    |
+| `setContent(text)`       | `string`             | `void`     | Set editor content        |
+| `insertText(text, pos?)` | `string, Position?`  | `void`     | Insert text               |
+| `getSelectedText()`      | -                    | `string`   | Get selected text         |
+| `hasSelection()`         | -                    | `boolean`  | Check for selection       |
+| `replaceSelection(text)` | `string`             | `void`     | Replace selection         |
+| `getCursor()`            | -                    | `Position` | Get cursor position       |
+| `setCursor(pos)`         | `Position`           | `void`     | Set cursor position       |
+| `getSelection()`         | -                    | `Range`    | Get selection range       |
+| `setSelection(from, to)` | `Position, Position` | `void`     | Set selection             |
+| `getWordCount()`         | -                    | `number`   | Count words               |
+| `getCharacterCount()`    | -                    | `number`   | Count characters          |
+| `getLineCount()`         | -                    | `number`   | Count lines               |
+| `isActive()`             | -                    | `boolean`  | Check if editor is active |
+| `toggleBold()`           | -                    | `void`     | Toggle bold formatting    |
+| `toggleItalic()`         | -                    | `void`     | Toggle italic formatting  |
+| `setHeading(level)`      | `number`             | `void`     | Set heading level         |
+| `scrollToLine(line)`     | `number`             | `void`     | Scroll to line            |
+
+## Examples
+
+### Word Counter Status
+
+```typescript
+async onload() {
+  this.registerEvent(
+    this.app.events.on('editor-change', () => {
+      const words = this.app.editor.getWordCount();
+      this.updateStatusBar(`${words} words`);
+    })
+  );
+}
+```
+
+### Text Transformer
+
+```typescript
+this.addCommand({
+  id: "my-plugin:uppercase",
+  name: "Transform to Uppercase",
+  callback: () => {
+    const selected = this.app.editor.getSelectedText();
+    if (selected) {
+      this.app.editor.replaceSelection(selected.toUpperCase());
+    }
+  },
+});
+```
+
+### Insert Template
+
+```typescript
+this.addCommand({
+  id: "my-plugin:insert-date",
+  name: "Insert Current Date",
+  callback: () => {
+    const date = new Date().toLocaleDateString();
+    this.app.editor.insertText(date);
+  },
+});
+```
+
+### Smart List Continuation
+
+```typescript
+this.registerEvent(
+  this.app.events.on("editor-keydown", (event) => {
+    if (event.key === "Enter") {
+      const cursor = this.app.editor.getCursor();
+      const line = this.app.editor.getLine(cursor.line);
+
+      if (line.match(/^- \[ \] /)) {
+        event.preventDefault();
+        this.app.editor.insertText("\n- [ ] ");
+      }
+    }
+  })
+);
+```

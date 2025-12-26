@@ -1,0 +1,93 @@
+---
+title: API Reference
+description: Complete reference for the Vandrite Plugin API
+
+---
+
+# API Reference
+
+This section provides detailed documentation for all available Vandrite Plugin APIs.
+
+## Available APIs
+
+The `app` object provides access to all Vandrite APIs:
+
+<Cards>
+  <Card
+    title="app.commands"
+    href="/docs/plugins/api/commands"
+    description="Register and execute commands"
+  />
+  <Card
+    title="app.events"
+    href="/docs/plugins/api/events"
+    description="Subscribe to application events"
+  />
+  <Card
+    title="app.vault"
+    href="/docs/plugins/api/vault"
+    description="Access files in the vault"
+  />
+  <Card
+    title="app.modals"
+    href="/docs/plugins/api/modals"
+    description="Show dialogs and prompts"
+  />
+  <Card
+    title="app.hotkeys"
+    href="/docs/plugins/api/hotkeys"
+    description="Register keyboard shortcuts"
+  />
+  <Card
+    title="app.editor"
+    href="/docs/plugins/api/editor"
+    description="Interact with the text editor"
+  />
+  <Card
+    title="app.theme"
+    href="/docs/plugins/api/theme"
+    description="Access and modify themes"
+  />
+</Cards>
+
+## Quick Reference
+
+| API            | Common Methods                                      |
+| -------------- | --------------------------------------------------- |
+| `app.commands` | `addCommand()`, `execute()`                         |
+| `app.events`   | `on()`, `trigger()`                                 |
+| `app.vault`    | `read()`, `create()`, `getFiles()`                  |
+| `app.modals`   | `alert()`, `confirm()`, `prompt()`, `select()`      |
+| `app.hotkeys`  | `register()`                                        |
+| `app.editor`   | `insertText()`, `getContent()`, `getSelectedText()` |
+| `app.theme`    | `getTheme()`, `setTheme()`                          |
+
+## Using APIs in Your Plugin
+
+All APIs are available through `this.app` in your plugin:
+
+```typescript
+import { Plugin } from "@vandrite/plugin-api";
+
+export default class MyPlugin extends Plugin {
+  async onload() {
+    // Commands API
+    this.addCommand({
+      id: "my-command",
+      name: "Do Something",
+      callback: () => {
+        // Modals API
+        this.app.modals.alert("Hello!", "This is a message");
+      },
+    });
+
+    // Events API
+    this.registerEvent(
+      this.app.events.on("file-open", (file) => {
+        // Vault API
+        const content = this.app.vault.read(file.path);
+      })
+    );
+  }
+}
+```

@@ -1,0 +1,101 @@
+---
+title: Plugin Manifest
+description: Configure your plugin's metadata and requirements
+
+---
+
+# Plugin Manifest
+
+Every Vandrite plugin requires a `manifest.json` file in its root directory. This file contains metadata about your plugin and tells Vandrite how to load it.
+
+## Basic Structure
+
+```json title="manifest.json"
+{
+  "id": "my-plugin",
+  "name": "My Plugin",
+  "version": "1.0.0",
+  "description": "A description of what my plugin does",
+  "author": "Your Name",
+  "minAppVersion": "0.1.0"
+}
+```
+
+## Required Fields
+
+| Field           | Type     | Description                                                                      |
+| --------------- | -------- | -------------------------------------------------------------------------------- |
+| `id`            | `string` | Unique identifier for your plugin. Use lowercase and hyphens (e.g., `my-plugin`) |
+| `name`          | `string` | Display name shown in the plugin list                                            |
+| `version`       | `string` | Semantic version (e.g., `1.0.0`)                                                 |
+| `description`   | `string` | Brief description of what your plugin does                                       |
+| `author`        | `string` | Your name or organization                                                        |
+| `minAppVersion` | `string` | Minimum Vandrite version required                                                |
+
+## Optional Fields
+
+```json title="manifest.json"
+{
+  "id": "advanced-plugin",
+  "name": "Advanced Plugin",
+  "version": "2.0.0",
+  "description": "An advanced plugin example",
+  "author": "Your Name",
+  "authorUrl": "https://yourwebsite.com",
+  "minAppVersion": "0.1.0",
+  "isDesktopOnly": false,
+  "main": "main.js",
+  "helpUrl": "https://github.com/you/your-plugin"
+}
+```
+
+| Field           | Type      | Default   | Description                          |
+| --------------- | --------- | --------- | ------------------------------------ |
+| `authorUrl`     | `string`  | -         | Link to author's website             |
+| `isDesktopOnly` | `boolean` | `false`   | If true, plugin won't load on mobile |
+| `main`          | `string`  | `main.js` | Entry point file name                |
+| `helpUrl`       | `string`  | -         | Link to documentation or support     |
+
+## Version Guidelines
+
+Follow [Semantic Versioning](https://semver.org/):
+
+- **Major** (1.x.x): Breaking changes
+- **Minor** (x.1.x): New features, backwards compatible
+- **Patch** (x.x.1): Bug fixes
+
+<Callout type="warning">
+  Ensure your `minAppVersion` matches the `@vandrite/plugin-api` version you're
+  using. Using APIs from a newer version than specified may cause errors.
+</Callout>
+
+## Example Manifests
+
+### Simple Plugin
+
+```json
+{
+  "id": "word-counter",
+  "name": "Word Counter",
+  "version": "1.0.0",
+  "description": "Displays word count in the status bar",
+  "author": "Developer Name",
+  "minAppVersion": "0.1.0"
+}
+```
+
+### Full-Featured Plugin
+
+```json
+{
+  "id": "advanced-editor-tools",
+  "name": "Advanced Editor Tools",
+  "version": "2.1.0",
+  "description": "Powerful editing tools including find/replace, sorting, and more",
+  "author": "Plugin Labs",
+  "authorUrl": "https://pluginlabs.com",
+  "minAppVersion": "0.2.0",
+  "isDesktopOnly": true,
+  "helpUrl": "https://github.com/pluginlabs/advanced-editor-tools/wiki"
+}
+```

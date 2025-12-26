@@ -1,0 +1,234 @@
+---
+title: Publishing Your Plugin
+description: Learn how to publish your plugin to the Vandrite Plugin Registry
+---
+
+# Publishing Your Plugin
+
+Once your plugin is complete and tested, you can publish it to the official Vandrite Plugin Registry for other users to discover and install.
+
+## Overview
+
+The [vandrite-plugins](https://github.com/vandrite/vandrite-plugins) repository serves as the central registry for all community plugins. To get your plugin listed, you'll need to submit a Pull Request with your plugin information.
+
+<Callout type="info">
+  You can now submit your plugin using our [submission
+  template](https://github.com/vandrite/vandrite-plugins/issues/new?template=plugin_submission.yml).
+</Callout>
+
+## Prerequisites
+
+Before publishing, ensure your plugin:
+
+1. Is hosted in its own public GitHub repository
+2. Has a proper `manifest.json` file
+3. Has at least one release with a downloadable `.zip` file
+4. Includes a README with documentation
+
+## Step 1: Create a Release
+
+1. Build your plugin:
+
+   ```bash
+   npm run build
+   ```
+
+2. Create a release ZIP containing:
+
+   - `manifest.json`
+   - `main.js` (compiled)
+   - Any other required assets
+
+3. Generate a SHA256 checksum:
+
+   ```bash
+   # On Linux/Mac
+   shasum -a 256 your-plugin.zip
+
+   # On Windows (PowerShell)
+   Get-FileHash -Algorithm SHA256 your-plugin.zip
+   ```
+
+4. Create a GitHub release and upload the ZIP file
+
+## Automating Releases
+
+You can automate the bundling process by creating a script.
+
+1. Install `archiver`:
+
+   ```bash
+   npm install --save-dev archiver
+   ```
+
+2. Create a file `scripts/release.js`:
+
+   ```javascript
+   const fs = require("fs");
+   const path = require("path");
+   const archiver = require("archiver");
+
+   const manifest = require("../manifest.json");
+   const version = manifest.version;
+   const pluginId = manifest.id;
+
+   const releaseDir = path.join(__dirname, "..", "releases");
+   const zipName = `${pluginId}-${version}.zip`;
+   const zipPath = path.join(releaseDir, zipName);
+
+   if (!fs.existsSync(releaseDir)) {
+     fs.mkdirSync(releaseDir, { recursive: true });
+   }
+
+   const output = fs.createWriteStream(zipPath);
+   const archive = archiver("zip", { zlib: { level: 9 } });
+
+   output.on("close", () => {
+     console.log(`✅ Created ${zipName} (${archive.pointer()} bytes)`);
+     console.log(`📦 Ready to upload to GitHub releases!`);
+   });
+
+   archive.on("error", (err) => {
+     throw err;
+   });
+
+   archive.pipe(output);
+
+   archive.file("manifest.json", { name: "manifest.json" });
+   archive.file("main.js", { name: "main.js" });
+   archive.file("README.md", { name: "README.md" });
+
+   archive.finalize();
+   ```
+
+3. Add a script to your `package.json`:
+
+   ```json
+   "scripts": {
+     "release": "node scripts/release.js"
+   }
+   ```
+
+4. Run `npm run release` to generate your zip file.
+
+## Step 2: Add to Registry
+
+Fork the [vandrite-plugins](https://github.com/vandrite/vandrite-plugins) repository and add your plugin entry to `manifest.json`:
+
+```json
+{
+  "guid": "unique-uuid-v4",
+  "id": "your-plugin-id",
+  "name": "Your Plugin Name",
+  "slug": "your-plugin-id",
+  "overview": "Short description (max 100 chars)",
+  "description": "Full description with features and usage",
+  "author": "Your Name",
+  "authorUrl": "https://github.com/yourusername",
+  "category": "Productivity",
+  "tags": ["tag1", "tag2"],
+  "imageUrl": "https://raw.githubusercontent.com/.../icon.png",
+  "repository": "https://github.com/yourusername/your-plugin",
+  "featured": false,
+  "verified": false,
+  "versions": [
+    {
+      "version": "1.0.0",
+      "changelog": "Initial release",
+      "minAppVersion": "0.1.0",
+      "downloadUrl": "https://github.com/.../releases/download/v1.0.0/plugin.zip",
+      "checksum": "sha256:abc123def456..."
+    }
+  ]
+}
+```
+
+## Registry Entry Fields
+
+| Field         | Required | Description                               |
+| ------------- | -------- | ----------------------------------------- |
+| `guid`        | Yes      | Unique UUID v4 for your plugin            |
+| `id`          | Yes      | Plugin identifier (matches manifest.json) |
+| `name`        | Yes      | Display name                              |
+| `slug`        | Yes      | URL-friendly identifier                   |
+| `overview`    | Yes      | Short description (max 100 chars)         |
+| `description` | Yes      | Full description with features            |
+| `author`      | Yes      | Author name                               |
+| `authorUrl`   | No       | Link to author profile                    |
+| `category`    | Yes      | Plugin category                           |
+| `tags`        | No       | Searchable tags                           |
+| `imageUrl`    | No       | Plugin icon/preview image                 |
+| `repository`  | Yes      | GitHub repository URL                     |
+| `featured`    | No       | Set by Vandrite team                      |
+| `verified`    | No       | Set after manual review                   |
+| `versions`    | Yes      | Array of version entries                  |
+
+## Categories
+
+Choose the most appropriate category for your plugin:
+
+- **Productivity** - Task management, time tracking, etc.
+- **Writing** - Writing tools, templates, etc.
+- **Organization** - File management, tagging, etc.
+- **Appearance** - Themes, custom CSS, icons
+- **Integration** - External services, APIs
+- **Developer** - Developer tools, debugging
+
+## Step 3: Submit Pull Request
+
+1. Commit your changes to `manifest.json`
+2. Open a Pull Request to the main repository
+3. Wait for review from the Vandrite team
+
+## Verification
+
+Plugins can be marked as `verified: true` after manual review from the Vandrite team. Verified plugins:
+
+- Have been tested for quality and security
+- Display a verified badge in the plugin browser
+- Appear higher in search results
+
+<Callout type="tip">
+  Include clear documentation, screenshots, and a well-organized repository to
+  speed up the verification process.
+</Callout>
+
+## Updating Your Plugin
+
+When releasing updates:
+
+1. Build and release a new version
+2. Add a new entry to the `versions` array in the registry
+3. Submit a PR with the update
+
+```json
+"versions": [
+  {
+    "version": "1.1.0",
+    "changelog": "Added new feature X",
+    "minAppVersion": "0.1.0",
+    "downloadUrl": "https://github.com/.../releases/download/v1.1.0/plugin.zip",
+    "checksum": "sha256:..."
+  },
+  {
+    "version": "1.0.0",
+    "changelog": "Initial release",
+    "minAppVersion": "0.1.0",
+    "downloadUrl": "https://github.com/.../releases/download/v1.0.0/plugin.zip",
+    "checksum": "sha256:..."
+  }
+]
+```
+
+## Resources
+
+<Cards>
+  <Card
+    title="Plugin Registry"
+    href="https://github.com/vandrite/vandrite-plugins"
+  />
+  <Card
+    title="Quick Note Plugin (Example)"
+    href="https://github.com/vandrite/vandrite-plugin-quick-note"
+  />
+</Cards>
