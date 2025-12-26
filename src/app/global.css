@@ -3,11 +3,11 @@
 @import "fumadocs-ui/css/preset.css";
 
 :root {
-  --fd-primary: 272 70% 44%; /* #6822bd */
+  --fd-primary: 272 70% 35%; /* Darker purple for better contrast */
   --fd-primary-foreground: 0 0% 100%;
 }
 
 .dark {
   --fd-primary: 272 60% 65%; /* #915ad5 lighter for dark mode */
-  --fd-primary-foreground: 0 0% 100%;
+  --fd-primary-foreground: 0 0% 0%; /* Black text on light purple background */
 }

@@ -71,7 +71,7 @@ export default function HomePage() {
       <div className="flex gap-4 flex-wrap justify-center">
         <Link
           href="/docs"
-          className="inline-flex items-center justify-center rounded-lg bg-fd-primary px-6 py-3 text-sm font-medium text-fd-primary-foreground transition-colors hover:bg-fd-primary/90"
+          className="inline-flex items-center justify-center rounded-lg bg-fd-primary px-6 py-3 text-sm font-medium text-white dark:text-black transition-colors hover:bg-fd-primary/90"
         >
           Get Started
         </Link>
@@ -86,21 +86,21 @@ export default function HomePage() {
       <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl">
         <div className="p-6 rounded-lg border border-fd-border bg-fd-card">
           <div className="text-2xl mb-2">📝</div>
-          <h3 className="font-semibold mb-2">User Guide</h3>
+          <h2 className="font-semibold mb-2">User Guide</h2>
           <p className="text-sm text-fd-muted-foreground">
             Learn how to use all of Vandrite&apos;s features
           </p>
         </div>
         <div className="p-6 rounded-lg border border-fd-border bg-fd-card">
           <div className="text-2xl mb-2">🔌</div>
-          <h3 className="font-semibold mb-2">Plugin API</h3>
+          <h2 className="font-semibold mb-2">Plugin API</h2>
           <p className="text-sm text-fd-muted-foreground">
             Build custom plugins to extend Vandrite
           </p>
         </div>
         <div className="p-6 rounded-lg border border-fd-border bg-fd-card">
           <div className="text-2xl mb-2">🎨</div>
-          <h3 className="font-semibold mb-2">Themes</h3>
+          <h2 className="font-semibold mb-2">Themes</h2>
           <p className="text-sm text-fd-muted-foreground">
             Customize the look and feel of Vandrite
           </p>
