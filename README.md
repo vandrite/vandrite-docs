@@ -1,5 +1,10 @@
 # Vandrite Documentation
 
+![License](https://img.shields.io/github/license/vandrite/vandrite-docs?style=flat-square)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_4.0-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
+
 Welcome to the official repository for the **Vandrite Documentation**. This project is built with **Next.js** and **Fumadocs** to provide a fast, comprehensive, and beautiful documentation experience for Vandrite users and developers.
 
 ## 🚀 About Vandrite
@@ -8,7 +13,7 @@ Vandrite is a powerful tool designed to help you organize your studies and ideas
 
 ## 🛠️ Tech Stack
 
-- **Framework:** [Next.js 15](https://nextjs.org/)
+- **Framework:** [Next.js 16](https://nextjs.org/)
 - **Documentation:** [Fumadocs](https://fumadocs.dev)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 - **Icons:** [Lucide React](https://lucide.dev/)
